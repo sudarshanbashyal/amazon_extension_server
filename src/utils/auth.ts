@@ -32,7 +32,6 @@ export const generateAccessToken = (payload: JWTPayload): string => {
 export const verifyJWT = (token: string): User | null => {
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-		console.log('decoded: ', decoded);
 		return decoded as User;
 	} catch (error) {
 		return null;

@@ -10,6 +10,11 @@ export class UserResolver {
 		this.userService = new UserService();
 	}
 
+	@Query(() => String)
+	ping() {
+		return 'pong';
+	}
+
 	@Query(() => User)
 	me(@Ctx() ctx: Context) {
 		return ctx.user;
@@ -25,9 +30,9 @@ export class UserResolver {
 	}
 
 	@Query(() => String)
-	async login(@Arg('input') loginDto: LoginUserDTO) {
+	async login(@Arg('input') loginDto: LoginUserDTO, @Ctx() ctx: Context) {
 		try {
-			return await this.userService.loginUser(loginDto);
+			return await this.userService.loginUser(loginDto, ctx);
 		} catch (error) {
 			throw error;
 		}

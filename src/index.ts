@@ -30,8 +30,9 @@ const bootstrap = async () => {
 	const server = new ApolloServer({
 		schema,
 		context: (ctx: Context) => {
-			if (ctx.req.cookies.access_token) {
-				const user = verifyJWT(ctx.req.cookies.access_token);
+			if (ctx.req.headers.access_token) {
+				const user = verifyJWT(ctx.req.headers.access_token as string);
+				console.log('user: ', user);
 				ctx.user = user;
 				return ctx;
 			}

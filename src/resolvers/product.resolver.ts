@@ -12,7 +12,7 @@ export class ProductResolver {
 
 	@Authorized()
 	@Mutation(() => Product)
-	async createUser(@Arg('input') dto: ProductDTO, @Ctx() ctx: Context) {
+	async saveProduct(@Arg('input') dto: ProductDTO, @Ctx() ctx: Context) {
 		try {
 			return await this.productService.createProduct({
 				...dto,
