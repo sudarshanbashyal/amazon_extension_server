@@ -32,7 +32,6 @@ const bootstrap = async () => {
 		context: (ctx: Context) => {
 			if (ctx.req.headers.access_token) {
 				const user = verifyJWT(ctx.req.headers.access_token as string);
-				console.log('user: ', user);
 				ctx.user = user;
 				return ctx;
 			}

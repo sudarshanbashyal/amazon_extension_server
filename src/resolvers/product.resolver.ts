@@ -1,4 +1,4 @@
-import { Arg, Authorized, Ctx, Mutation, Resolver } from 'type-graphql';
+import { Arg, Authorized, Ctx, Query, Mutation, Resolver } from 'type-graphql';
 import { Product } from '../schema/product.schema';
 import { ProductService } from '../service/product.service';
 import { Context } from '../types/context.type';
@@ -18,6 +18,16 @@ export class ProductResolver {
 				...dto,
 				user: ctx.user?._id || '',
 			});
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	@Authorized()
+	@Query(() => [Product])
+	async getProductsByUser(@Ctx() ctx: Context) {
+		try {
+			return await this.productService.getProducts(ctx);
 		} catch (error) {
 			throw error;
 		}
