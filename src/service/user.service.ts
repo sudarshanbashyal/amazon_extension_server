@@ -7,6 +7,10 @@ import { generateAccessToken, hashPassword, isPasswordCorrect } from '../utils/a
 export class UserService {
 	async createUser(createUserDto: CreateUserDTO) {
 		try {
+			const userExists = await UserModel.findOne({
+				email: createUserDto.email,
+			});
+			if (userExists) throw new ApolloError('Email has already been used.');
 			const hash = hashPassword(createUserDto.password);
 
 			return await UserModel.create({

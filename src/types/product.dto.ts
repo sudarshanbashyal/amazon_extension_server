@@ -1,9 +1,11 @@
+import { IsNotEmpty } from 'class-validator';
 import { Field, InputType, ObjectType } from 'type-graphql';
 
 @InputType()
 @ObjectType('ProductObjectDTO')
 export class ProductDTO {
 	@Field(() => String, { defaultValue: '' })
+	@IsNotEmpty()
 	product_title: string;
 
 	@Field(() => String)

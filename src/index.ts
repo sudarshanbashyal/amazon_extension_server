@@ -20,6 +20,7 @@ const bootstrap = async () => {
 	const schema = await buildSchema({
 		resolvers: resolvers,
 		authChecker: checkAuth,
+		validate: true,
 	});
 
 	// init app
