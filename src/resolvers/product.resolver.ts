@@ -2,7 +2,8 @@ import { Arg, Authorized, Ctx, Query, Mutation, Resolver } from 'type-graphql';
 import { Product } from '../schema/product.schema';
 import { ProductService } from '../service/product.service';
 import { Context } from '../types/context.type';
-import { ProductDTO } from '../types/product.dto';
+import { ProductDTO, ProductResultDTO } from '../types/product.dto';
+import { PaginationInput } from '../utils/pagination';
 
 @Resolver()
 export class ProductResolver {
@@ -24,10 +25,10 @@ export class ProductResolver {
 	}
 
 	@Authorized()
-	@Query(() => [Product])
-	async getProductsByUser(@Ctx() ctx: Context) {
+	@Query(() => ProductResultDTO)
+	async getProductsByUser(@Arg('pagination') pagination: PaginationInput, @Ctx() ctx: Context) {
 		try {
-			return await this.productService.getProducts(ctx);
+			return await this.productService.getProducts(pagination, ctx);
 		} catch (error) {
 			throw error;
 		}

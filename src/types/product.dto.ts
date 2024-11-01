@@ -1,5 +1,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { Field, InputType, ObjectType } from 'type-graphql';
+import { Product } from '../schema/product.schema';
+import { PaginationOutput } from '../utils/pagination';
 
 @InputType()
 @ObjectType('ProductObjectDTO')
@@ -22,4 +24,13 @@ export class ProductDTO {
 
 	@Field(() => Number, { nullable: true })
 	product_rating: number;
+}
+
+@ObjectType()
+export class ProductResultDTO {
+	@Field(() => PaginationOutput)
+	pagination: PaginationOutput;
+
+	@Field(() => [Product])
+	products: Product[];
 }

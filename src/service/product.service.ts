@@ -2,6 +2,7 @@ import { ProductModel } from '../schema/product.schema';
 import { User } from '../schema/user.schema';
 import { Context } from '../types/context.type';
 import { ProductDTO } from '../types/product.dto';
+import { PaginationInput } from '../utils/pagination';
 
 export class ProductService {
 	async createProduct(input: ProductDTO & { user: User['_id'] }) {
@@ -12,11 +13,30 @@ export class ProductService {
 		}
 	}
 
-	async getProducts(ctx: Context) {
+	async getProducts(pagination: PaginationInput, ctx: Context) {
 		try {
-			return await ProductModel.find({
+			const { page, limit } = pagination;
+			const total = await ProductModel.countDocuments({
 				user: ctx.user,
 			});
+
+			const skip = (page - 1) * limit;
+
+			const result = await ProductModel.find({
+				user: ctx.user,
+			})
+				.limit(limit)
+				.skip(skip);
+
+			return {
+				pagination: {
+					total,
+					page,
+					limit,
+					totalPages: Math.ceil(total / limit),
+				},
+				products: result,
+			};
 		} catch (error) {
 			throw error;
 		}
