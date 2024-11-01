@@ -26,8 +26,10 @@ export class ProductService {
 				user: ctx.user,
 			})
 				.limit(limit)
-				.skip(skip);
-
+				.skip(skip)
+				.sort({
+					_id: -1,
+				});
 			return {
 				pagination: {
 					total,
