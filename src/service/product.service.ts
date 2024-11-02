@@ -3,10 +3,14 @@ import { User } from '../schema/user.schema';
 import { Context } from '../types/context.type';
 import { ProductDTO } from '../types/product.dto';
 import { PaginationInput } from '../utils/pagination';
+import { deleteCacheByKeys, getKeysByPrefix, setCache } from '../utils/redis';
 
 export class ProductService {
 	async createProduct(input: ProductDTO & { user: User['_id'] }) {
 		try {
+			const keys = await getKeysByPrefix(`product_${input.user}`);
+			await deleteCacheByKeys(keys);
+
 			return await ProductModel.create(input);
 		} catch (error) {
 			throw error;
@@ -30,7 +34,8 @@ export class ProductService {
 				.sort({
 					_id: -1,
 				});
-			return {
+
+			const data = {
 				pagination: {
 					total,
 					page,
@@ -39,6 +44,11 @@ export class ProductService {
 				},
 				products: result,
 			};
+
+			const cacheKey = `product_${ctx.user?._id}_${page}_${limit}`;
+			setCache(cacheKey, data);
+
+			return data;
 		} catch (error) {
 			throw error;
 		}

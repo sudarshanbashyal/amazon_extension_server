@@ -1,4 +1,5 @@
-import { Arg, Authorized, Ctx, Query, Mutation, Resolver } from 'type-graphql';
+import { Arg, Authorized, Ctx, Query, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import { productCacheMiddleware } from '../middlewares';
 import { Product } from '../schema/product.schema';
 import { ProductService } from '../service/product.service';
 import { Context } from '../types/context.type';
@@ -25,6 +26,7 @@ export class ProductResolver {
 	}
 
 	@Authorized()
+	@UseMiddleware(productCacheMiddleware)
 	@Query(() => ProductResultDTO)
 	async getProductsByUser(@Arg('pagination') pagination: PaginationInput, @Ctx() ctx: Context) {
 		try {

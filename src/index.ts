@@ -12,8 +12,28 @@ import { resolvers } from './resolvers';
 import { initializeDatabase } from './utils/mongo';
 import { checkAuth, verifyJWT } from './utils/auth';
 import { Context } from './types/context.type';
+import Redis from 'ioredis';
 
 dotenv.config();
+
+export let redis: Redis | null = null;
+
+const connectToRedis = () => {
+	try {
+		redis = new Redis(process.env.REDIS_URI || '');
+		redis.on('connect', () => {
+			console.error('Connected to Redis!');
+		});
+		redis.on('error', (error: any) => {
+			console.error('Redis Error: ', error);
+			if (error?.code === 'ECONNREFUSED') {
+				process.exit(1);
+			}
+		});
+	} catch (e) {
+		process.exit(1);
+	}
+};
 
 const bootstrap = async () => {
 	// build schema
@@ -23,7 +43,6 @@ const bootstrap = async () => {
 		validate: true,
 	});
 
-	// init app
 	const app = express() as any;
 	app.use(cookieParser());
 
@@ -47,14 +66,9 @@ const bootstrap = async () => {
 	await server.start();
 	server.applyMiddleware({ app });
 
-	// start server
-
-	// apply middleware to server
-
-	// connect to db
-
-	// listen express app
+	// connect to databases
 	initializeDatabase();
+	connectToRedis();
 	app.listen(process.env.PORT || 4000, () => {
 		console.log('Server is up!');
 	});

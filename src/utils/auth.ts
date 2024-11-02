@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { AuthChecker } from 'type-graphql';
 import { User } from '../schema/user.schema';
 import { Context } from '../types/context.type';
+
 dotenv.config();
 
 const SALT_ROUNDS = 10;
