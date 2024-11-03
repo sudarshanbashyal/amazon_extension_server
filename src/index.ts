@@ -13,12 +13,13 @@ import { initializeDatabase } from './utils/mongo';
 import { checkAuth, verifyJWT } from './utils/auth';
 import { Context } from './types/context.type';
 import Redis from 'ioredis';
+import { rateLimit } from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
 
 dotenv.config();
 
-export let redis: Redis | null = null;
-
-const connectToRedis = () => {
+export let redis: any;
+const initializeRedis = () => {
 	try {
 		redis = new Redis(process.env.REDIS_URI || '');
 		redis.on('connect', () => {
@@ -44,7 +45,31 @@ const bootstrap = async () => {
 	});
 
 	const app = express() as any;
+
+	// connect to mongo and redis databases
+	initializeDatabase();
+	initializeRedis();
+
+	/*
+	 * SETTING UP RATE LIMIT USING REDIS:
+	 * 500 REQUESTS PER 15 MINUTES FOR A GIVEN IP IN THISE CASE
+	 */
+	const limiter = rateLimit({
+		windowMs: 15 * 60 * 1000,
+		limit: 500,
+		standardHeaders: 'draft-7',
+		legacyHeaders: false,
+		message: 'Too many requests. Please try again after a while.',
+		passOnStoreError: true,
+		store: new RedisStore({
+			sendCommand: (...args: string[]) => {
+				return redis?.call(...args);
+			},
+		}),
+	});
+
 	app.use(cookieParser());
+	app.use(limiter);
 
 	// create apollo server
 	const server = new ApolloServer({
@@ -66,9 +91,6 @@ const bootstrap = async () => {
 	await server.start();
 	server.applyMiddleware({ app });
 
-	// connect to databases
-	initializeDatabase();
-	connectToRedis();
 	app.listen(process.env.PORT || 4000, () => {
 		console.log('Server is up!');
 	});

@@ -1,9 +1,10 @@
-import { getModelForClass, index, prop, Ref } from '@typegoose/typegoose';
+import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
 import { Field, ObjectType } from 'type-graphql';
 import { User } from './user.schema';
 
 @ObjectType()
-@index({ product_url: 1 })
+@index({ product_url: 1, user: 1 })
+@modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Product {
 	@Field(() => String)
 	_id: string;
