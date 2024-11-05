@@ -37,7 +37,7 @@ The aim of this project was to create a simple chrome extension to extract produ
  - [GraphQL](https://graphql.org/) - API Query language used for all queries. 
 
 ## Mongo Database Schema
-This project relies on just two database collections users and projects:
+This project relies on just two database collections: users and projects:
 
  - Users Collection
 	 
@@ -64,37 +64,37 @@ This project relies on just two database collections users and projects:
 ## Performance, and Security Considerations
 In order to make this application more performant, optimized, and secure, the following steps were taken into place:
 
- - **Password Hashing**
+ - **Password Hashing**<br/>
 	Instead of storing the password as plain text, the password has been encrypted with multiple salting rounds to create a secure hash so that even in case of a data breach, sensitive information are not visible.
 	
- - **Authentication and Authorization**
+ - **Authentication and Authorization**<br/>
 	 Proper auth has been implemented using JWT to make it so that users have to be logged in to save products. Authorization has been implemented on queries related to fetching products ensuring that users can only see the products saved by themselves.
 	 
- - **Indexing**
+ - **Indexing**<br/>
 	The `email` field from the User collection, and the `product_url` and `user` reference field from the Product collection has been indexed (along with the primary key) to ensure a fast lookup time.
 	
- - **Pagination**
+ - **Pagination**<br/>
 	 Pagination has been implemented in the query that retrieves saved products. This reduces the load on our database since only a small number of data need to be read at a time.
 	 
-  - **Caching with Redis**
+  - **Caching with Redis**<br/>
 	 To further reduce the load on our primary database, redis has been used to cache user specific data for product retrievals. Each time the user reads from from a particular page, a unique key is generated using the user id, the page number, and the page limit so that data from cache can be used if present.
 	 The cache is invalidated each time the user saves a new product, so that their is no lag when retrieving a new product.
 	 
- - **Rate limiting**
+ - **Rate limiting**<br/>
 	 On top of caching, redis has also been utilized for rate limiting. This make the application vastly more secure, since DDoS is one of the most common server-side attacks. Rate limiting prevents this issue by setting a limit for how many times a server can be called by a given IP address.
 
 ## Future Improvements
 To improve the application even further, the following quick improvements could be made:
 
-**Auto generated schemas**
+- **Auto generated schemas**<br/>
 	Currently, the GraphQL queries and mutations are set up as pure strings values on the frontend. However, auto generating the schemas from backend can result in better type-definitions, and fault tolerance on the frontend application, since even if small changes are made to the backend schema, the client will be able to detect it during build time.
 
-**Multi Token Authentication**
+- **Multi Token Authentication**<br/>
 	Instead of relying on a single access token, using two different tokens: a refresh token and an access token can boost the security of the application by a long run, since both tokens will be needed to access any of the user's data.
 	
-**Invalidating JWT Tokens**
+- **Invalidating JWT Tokens**<br/>
 	Each time a user logs out, their past tokens could be invalidated to ensure that no one else can use those tokens. This can be done in multiple ways:
- - Store all the invalid tokens in a separate table, and reference this table for each request. This can be an easy implementation for token invalidation, but can consume a lot of database storage since tokens will have to be stored after each session.
- - Maintain a token version for each user, and add the token version to the JWT payload. Each time a user logs out, increase the version for that user, so that all the expired tokens can be detected with just one field. 
+	 - Store all the invalid tokens in a separate table, and reference this table for each request. This can be an easy implementation for token invalidation, but can consume a lot of database storage since tokens will have to be stored after each session.
+	 - Maintain a token version for each user, and add the token version to the JWT payload. Each time a user logs out, increase the version for that user, so that all the expired tokens can be detected with just one field. 
 
 	
